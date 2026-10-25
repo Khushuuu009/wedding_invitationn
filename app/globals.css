@@ -1,26 +1,148 @@
-@import "tailwindcss";
+  @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #ffffff;
+    --foreground: #171717;
   }
+
+  @theme inline {
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --font-sans: var(--font-geist-sans);
+    --font-mono: var(--font-geist-mono);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --background: #0a0a0a;
+      --foreground: #ededed;
+    }
+  }
+
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+  @keyframes floatSlow {
+    0% { transform: translateY(0px) translateX(0px) scale(1); }
+    50% { transform: translateY(-18px) translateX(8px) scale(1.03); }
+    100% { transform: translateY(0px) translateX(0px) scale(1); }
+  }
+
+  @keyframes fadeUp {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes softPulse {
+    0%, 100% { opacity: 0.35; transform: scale(1); }
+    50% { opacity: 0.55; transform: scale(1.08); }
+  }
+
+  .animate-floatSlow {
+    animation: floatSlow 9s ease-in-out infinite;
+  }
+
+  .animate-fadeUp {
+    animation: fadeUp 0.9s ease-out both;
+  }
+
+  .animate-softPulse {
+    animation: softPulse 7s ease-in-out infinite;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    background: #f6efe8;
+    color: #342823;
+    overflow-x: hidden;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  img {
+    display: block;
+  }
+
+  button,
+  a {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  ::selection {
+    background: rgba(201, 163, 123, 0.25);
+  }
+ html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  overflow-x: hidden;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+img {
+  display: block;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body{
+    background:#0d0b10;
+    overflow-x:hidden;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+@keyframes shimmer{
+
+0%{
+background-position:-300px;
+}
+
+100%{
+background-position:300px;
+}
+
+}
+
+.gold-shimmer{
+
+background:linear-gradient(
+90deg,
+#cda85a,
+#fff4c8,
+#cda85a
+);
+
+background-size:300px;
+
+animation:shimmer 4s linear infinite;
+
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+
 }

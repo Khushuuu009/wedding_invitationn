@@ -45,7 +45,7 @@ const events: EventItem[] = [
     venue: "Parekh Hall, TD Vora Marg, Malad East, Mumbai, Maharashtra 400097",
     mapLabel: "Open in Mappls",
     mapUrl: MAPPLS_URL,
-    image: "/wedding/Harsh & Disha’s Sparkling Sangeet Night (1).png",
+    image: "/wedding/Harsh & Disha Sparkling Sangeet Night (1).png",
     tint: "from-fuchsia-950/10 via-black/5 to-black/55",
   },
   {

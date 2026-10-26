@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { ImgHTMLAttributes } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useMusic } from "@/components/MusicPlayer";
 
@@ -17,22 +18,75 @@ type Particle = {
   delay: number;
 };
 
+// All image paths live here. Change them in one place only.
+const ASSETS = {
+  intro: "/curtains/wedding-theme.webp",
+  closed: "/curtains/closed.png",
+  half: "/curtains/half.png",
+  left: "/curtains/left.webp",
+  right: "/curtains/right.webp",
+  top: "/curtains/top.webp",
+};
+
+// Image that hides itself if the file is missing (no broken-image icon)
+function SafeImg(props: ImgHTMLAttributes<HTMLImageElement>) {
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      alt=""
+      draggable={false}
+      {...props}
+      onError={(e) => {
+        e.currentTarget.style.display = "none";
+      }}
+    />
+  );
+}
+
 export default function CurtainReveal({ onOpen }: Props) {
   const [step, setStep] = useState<Step>("intro");
-  const { playMusic } = useMusic();
+  const [ready, setReady] = useState(false);
   const [particles, setParticles] = useState<Particle[]>([]);
+  const { playMusic } = useMusic();
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const started = useRef(false);
 
-  // Generate random particles only on the client (avoids hydration mismatch)
+  // Random particles only on the client (avoids hydration mismatch)
   useEffect(() => {
     setParticles(
-      Array.from({ length: 25 }).map(() => ({
+      Array.from({ length: 20 }).map(() => ({
         left: Math.random() * 100,
         top: Math.random() * 100,
         duration: 4 + Math.random() * 3,
         delay: Math.random() * 3,
       }))
     );
+  }, []);
+
+  // Preload every image, then reveal the intro (6s safety fallback)
+  useEffect(() => {
+    let cancelled = false;
+    const finish = () => {
+      if (!cancelled) setReady(true);
+    };
+
+    const loads = Object.values(ASSETS).map(
+      (src) =>
+        new Promise<void>((resolve) => {
+          const img = new Image();
+          img.onload = () => resolve();
+          img.onerror = () => resolve(); // never block on a missing file
+          img.src = src;
+        })
+    );
+
+    Promise.all(loads).then(finish);
+    const fallback = setTimeout(finish, 6000);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(fallback);
+    };
   }, []);
 
   // Lock page scroll while the curtain is visible
@@ -51,30 +105,29 @@ export default function CurtainReveal({ onOpen }: Props) {
     return () => list.forEach(clearTimeout);
   }, []);
 
- const startOpening = useCallback(async () => {
+  const startOpening = useCallback(() => {
+    if (started.current) return; // ignore double taps
+    started.current = true;
 
-    if(step!=="intro") return;
-
-    await playMusic();
+    // Start music inside the tap (needed for autoplay rules),
+    // but never wait for it or let it break the animation.
+    try {
+      Promise.resolve(playMusic()).catch(() => {});
+    } catch {
+      /* ignore */
+    }
 
     setStep("closed");
 
+    timers.current.push(setTimeout(() => setStep("half"), 700));
+    timers.current.push(setTimeout(() => setStep("opening"), 1200));
     timers.current.push(
-        setTimeout(()=>setStep("half"),700)
+      setTimeout(() => {
+        setStep("done");
+        onOpen();
+      }, 4300)
     );
-
-    timers.current.push(
-        setTimeout(()=>setStep("opening"),1200)
-    );
-
-    timers.current.push(
-        setTimeout(()=>{
-            setStep("done");
-            onOpen();
-        },4300)
-    );
-
-},[step,onOpen,playMusic]);
+  }, [onOpen, playMusic]);
 
   return (
     <AnimatePresence>
@@ -86,28 +139,45 @@ export default function CurtainReveal({ onOpen }: Props) {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.8 }}
         >
+          {/* ================= LOADING (no image) ================= */}
+          {!ready && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <motion.div
+                className="h-3 w-3 rounded-full bg-[#d7b46a]"
+                animate={{ scale: [1, 1.8, 1], opacity: [0.5, 1, 0.5] }}
+                transition={{ repeat: Infinity, duration: 1.4 }}
+              />
+            </div>
+          )}
+
           {/* ================= CLOSED CURTAIN ================= */}
           {step === "closed" && (
-            <motion.img
+            <motion.div
               key="closed"
-              src="/curtains/closed.png"
-              alt=""
-              className="absolute inset-0 h-full w-full object-cover"
+              className="absolute inset-0"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-            />
+            >
+              <SafeImg
+                src={ASSETS.closed}
+                className="h-full w-full object-cover"
+              />
+            </motion.div>
           )}
 
           {/* ================= HALF CURTAIN ================= */}
           {step === "half" && (
-            <motion.img
+            <motion.div
               key="half"
-              src="/curtains/half.png"
-              alt=""
-              className="absolute inset-0 h-full w-full object-cover"
+              className="absolute inset-0"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-            />
+            >
+              <SafeImg
+                src={ASSETS.half}
+                className="h-full w-full object-cover"
+              />
+            </motion.div>
           )}
 
           {/* ================= OPENING ================= */}
@@ -138,35 +208,39 @@ export default function CurtainReveal({ onOpen }: Props) {
                 style={{
                   background:
                     "repeating-conic-gradient(from 180deg at 50% 50%, rgba(255,230,170,.25) 0deg 8deg, transparent 8deg 18deg)",
-                  filter: "blur(40px)",
+                  filter: "blur(20px)",
                 }}
               />
 
               {/* Left Curtain */}
-              <motion.img
-                src="/curtains/left.webp"
-                alt=""
-                className="absolute left-0 top-0 h-full w-[52%] object-cover"
+              <motion.div
+                className="absolute left-0 top-0 h-full w-[52%]"
                 initial={{ x: 0, scaleX: 1 }}
                 animate={{ x: "-110%", scaleX: 0.9 }}
                 transition={{ duration: 2.5, ease: [0.77, 0, 0.175, 1] }}
-              />
+              >
+                <SafeImg
+                  src={ASSETS.left}
+                  className="h-full w-full object-cover"
+                />
+              </motion.div>
 
               {/* Right Curtain */}
-              <motion.img
-                src="/curtains/right.webp"
-                alt=""
-                className="absolute right-0 top-0 h-full w-[52%] object-cover"
+              <motion.div
+                className="absolute right-0 top-0 h-full w-[52%]"
                 initial={{ x: 0, scaleX: 1 }}
                 animate={{ x: "110%", scaleX: 0.9 }}
                 transition={{ duration: 2.5, ease: [0.77, 0, 0.175, 1] }}
-              />
+              >
+                <SafeImg
+                  src={ASSETS.right}
+                  className="h-full w-full object-cover"
+                />
+              </motion.div>
 
               {/* Top Curtain */}
-              <motion.img
-                src="/curtains/top.webp"
-                alt=""
-                className="absolute left-0 top-0 h-[28vh] w-full object-cover object-bottom"
+              <motion.div
+                className="absolute left-0 top-0 h-[28dvh] w-full"
                 initial={{ y: 0 }}
                 animate={{ y: "-100%" }}
                 transition={{
@@ -174,11 +248,16 @@ export default function CurtainReveal({ onOpen }: Props) {
                   duration: 1.4,
                   ease: [0.77, 0, 0.175, 1],
                 }}
-              />
+              >
+                <SafeImg
+                  src={ASSETS.top}
+                  className="h-full w-full object-cover object-bottom"
+                />
+              </motion.div>
 
-              {/* Gold Sparkles (deterministic, so no hydration issues) */}
+              {/* Gold Sparkles (deterministic) */}
               <div className="pointer-events-none absolute inset-0">
-                {Array.from({ length: 40 }).map((_, i) => (
+                {Array.from({ length: 24 }).map((_, i) => (
                   <motion.div
                     key={i}
                     className="absolute rounded-full"
@@ -198,7 +277,7 @@ export default function CurtainReveal({ onOpen }: Props) {
                       scale: [0, 1.5, 0.5],
                       rotate: 360,
                     }}
-                    transition={{ duration: 2.5, delay: i * 0.04 }}
+                    transition={{ duration: 2.5, delay: i * 0.06 }}
                   />
                 ))}
               </div>
@@ -215,17 +294,17 @@ export default function CurtainReveal({ onOpen }: Props) {
 
           {/* ================= INTRO ================= */}
           <AnimatePresence>
-            {step === "intro" && (
+            {step === "intro" && ready && (
               <motion.div
                 key="intro"
                 className="absolute inset-0"
-                initial={{ opacity: 1 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 1 }}
               >
-                <img
-                  src="/curtains/wedding-theme.webp"
-                  alt=""
+                <SafeImg
+                  src={ASSETS.intro}
                   className="absolute inset-0 h-full w-full object-cover"
                 />
 
@@ -262,7 +341,7 @@ export default function CurtainReveal({ onOpen }: Props) {
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 1 }}
-                    className="text-xs uppercase tracking-[0.5em] text-white/90"
+                    className="px-6 text-center text-xs uppercase tracking-[0.3em] text-white/90 sm:tracking-[0.5em]"
                   >
                     Together with their Families
                   </motion.h2>
@@ -292,7 +371,7 @@ export default function CurtainReveal({ onOpen }: Props) {
                     whileTap={{ scale: 0.96 }}
                     whileHover={{ scale: 1.05 }}
                     onClick={startOpening}
-                    className="mt-16 rounded-full bg-[#F4E8CF] px-10 py-4 uppercase tracking-[0.25em] shadow-2xl"
+                    className="mt-16 rounded-full bg-[#F4E8CF] px-10 py-4 text-sm uppercase tracking-[0.25em] shadow-2xl"
                   >
                     Open Invitation
                   </motion.button>

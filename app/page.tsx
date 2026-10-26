@@ -17,37 +17,10 @@ type EventItem = {
   tint: string;
 };
 
-const MAPPLS_URL =
-  "https://www.mappls.com/place-parekh+hall-td+vora+marg-malad+east-mumbai-maharashtra-400097-54mjr4@zdata=MTkuMTgwNTAyKzcyLjg1MjQwMSsxNys1NG1qcjQrKw==ed";
-
 const GOOGLE_MAPS_URL =
   "https://www.google.com/maps/dir//golden+valley+,+chene+creek+resort/data=!4m6!4m5!1m1!4e2!1m2!1m1!1s0x3be7b615e06ac69f:0xa6c469b634340319?sa=X&ved=1t:155782&ictx=111";
 
 const events: EventItem[] = [
-  {
-    id: "haldi",
-    title: "Haldi Ceremony",
-    subtitle: "Lavender theme • 4:00 PM onwards",
-    date: "25 November 2026",
-    time: "4:00 PM onwards",
-    venue: "Parekh Hall, TD Vora Marg, Malad East, Mumbai, Maharashtra 400097",
-    mapLabel: "Open in Mappls",
-    mapUrl: MAPPLS_URL,
-    image: "/wedding/Lavender Haldi Ceremony Invitation (1).png",
-    tint: "from-purple-950/10 via-black/5 to-black/55",
-  },
-  {
-    id: "sangeet",
-    title: "Sangeet Night",
-    subtitle: "Music • Dance • Celebration",
-    date: "25 November 2026", // was "25 October 2026" - please confirm
-    time: "6:30 PM onwards",
-    venue: "Parekh Hall, TD Vora Marg, Malad East, Mumbai, Maharashtra 400097",
-    mapLabel: "Open in Mappls",
-    mapUrl: MAPPLS_URL,
-    image: "/wedding/Harsh & Disha Enchanted Sangeet Night.png",
-    tint: "from-fuchsia-950/10 via-black/5 to-black/55",
-  },
   {
     id: "wedding",
     title: "Wedding Ceremony",
@@ -226,26 +199,6 @@ export default function Home() {
                   </div>
                 ))}
               </div>
-            </section>
-
-            <section className="rounded-[2rem] border border-white/20 bg-white/35 p-5 shadow-[0_18px_60px_rgba(0,0,0,0.08)]">
-              <p className="text-[10px] uppercase tracking-[0.35em] text-[#a5783f]">
-                Venue
-              </p>
-              <h3 className="mt-3 font-serif text-2xl text-[#3a2d25]">
-                Haldi &amp; Sangeet
-              </h3>
-              <p className="mt-2 text-sm leading-7 text-[#6f5b4d]">
-                Parekh Hall, TD Vora Marg, Malad East, Mumbai, Maharashtra 400097
-              </p>
-              <a
-                href={MAPPLS_URL}
-                target="_blank"
-                rel="noreferrer"   
-                className="mt-4 inline-flex rounded-full border border-[#c9a37b] px-5 py-2 text-xs uppercase tracking-[0.25em] text-[#3a2d25]"
-              >
-                Open Maps
-              </a>
             </section>
 
             <section className="rounded-[2rem] border border-white/20 bg-white/35 p-5 shadow-[0_18px_60px_rgba(0,0,0,0.08)]">

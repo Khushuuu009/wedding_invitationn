@@ -383,4 +383,4 @@ export default function CurtainReveal({ onOpen }: Props) {
       )}
     </AnimatePresence>
   );
-}
+} 

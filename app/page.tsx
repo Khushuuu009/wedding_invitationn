@@ -23,20 +23,20 @@ const GOOGLE_MAPS_URL =
 const events: EventItem[] = [
   {
     id: "wedding",
-    title: "Wedding Ceremony",
+    title: "Wedding Ceremony", 
     subtitle: "Tradition • Togetherness • Forever",
     date: "26 November 2026",
-    time: "Jaan prasthan 3:00 PM • Varmala 5:15 PM •  Dinner 7:00 PM",
+    time: "Jaan prasthan 1:30 PM • Varmala 5:15 PM •  Dinner 7:00 PM",
     venue: "Golden Valley, Chene Creek Resort",
     mapLabel: "Open in Google Maps",
     mapUrl: GOOGLE_MAPS_URL,
-    image: "/wedding/Royal Palace Indian Wedding Invitation.png",
+    image: "/wedding/wedding-invitation.png",
     tint: "from-slate-950/15 via-black/5 to-black/60",
   },
 ];
 
 const schedule = [
-  { label: "Jaan prasthan", value: "3:00 PM" },
+  { label: "Jaan prasthan", value: "1:30 PM" },
   { label: "Varmala", value: "5:15 PM" },
     { label: "Hasth Medap", value: "5:55 PM" },
   { label: "Choviyar", value: "5 PM onwards" },

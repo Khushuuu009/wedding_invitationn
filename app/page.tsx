@@ -30,7 +30,7 @@ const events: EventItem[] = [
     venue: "Golden Valley, Chene Creek Resort",
     mapLabel: "Open in Google Maps",
     mapUrl: GOOGLE_MAPS_URL,
-    image: "/wedding/wedding-invitation.png",
+    image: "/wedding/Wedding-invitation.png",
     tint: "from-slate-950/15 via-black/5 to-black/60",
   },
 ];
